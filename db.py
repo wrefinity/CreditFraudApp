@@ -27,10 +27,15 @@ class ConnectDB:
         '''create prediction table'''
         connection = sqlite3.connect('creditcard.db')
         cursor = connection.cursor()
+        # username, transaction_time, amount, card_expiration_date, card_number,
         cursor.execute(
             'CREATE TABLE IF NOT EXISTS prediction ('
             'id INTEGER PRIMARY KEY AUTOINCREMENT,'
             'username TEXT,'
+            'transaction_time TEXT,'
+            'amount TEXT,'
+            'card_expiration_date TEXT,'
+            'card_number TEXT,'
             'v4 REAL,'
             'v7 REAL,'
             'v9 REAL,'
@@ -70,6 +75,10 @@ class ConnectDB:
     @staticmethod
     def create_prediction(
         username,
+        transaction_time,
+        amount,
+        card_expiration_date,
+        card_number,
         v4, v7, v9, v12, v18, v19, v20, v21, v22, v28,
         status
     ):
@@ -77,8 +86,8 @@ class ConnectDB:
         connection = sqlite3.connect('creditcard.db')
         cursor = connection.cursor()
         cursor.execute(
-            'INSERT INTO prediction (username, v4, v7, v9, v12, v18, v19, v20, v21, v22, v28, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            (username, v4, v7, v9, v12, v18, v19, v20, v21, v22, v28, status)
+            'INSERT INTO prediction (username, transaction_time, amount, card_expiration_date, card_number, v4, v7, v9, v12, v18, v19, v20, v21, v22, v28, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            (username, transaction_time, amount, card_expiration_date, card_number, v4, v7, v9, v12, v18, v19, v20, v21, v22, v28, status)
         )
         connection.commit()
         connection.close()

@@ -1,9 +1,10 @@
 import joblib
+import datetime
+from datetime import time
 import numpy as np
 import streamlit as st
 from PIL import Image
 from db import ConnectDB
-import datetime
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
@@ -83,6 +84,8 @@ elif side_choice == "Login":
                 card_xnumber = st.text_input("Card Number")
                 expiration_xdate = st.date_input("Expiration Date", min_value=datetime.date.today())
                 cvvx = st.text_input("CVV")
+                amount = st.text_input("enter amount")
+                selected_time = st.time_input("Select a time", time(12, 0))
 
                 # Submit Button
                 # if st.button("Submit Transaction"):
@@ -145,9 +148,7 @@ elif side_choice == "Login":
                         else:
                             # Get input feature values
                             features = np.array(input_df_lst, dtype=np.float64)
-                            # Scale the input values
-                            # scaled_input = scale_values(input_df_lst)
-
+                           
                             # Make prediction
                             prediction = model.predict(features.reshape(1, -1))
                             # prediction = model.predict(scaled_input)
@@ -160,6 +161,10 @@ elif side_choice == "Login":
                                         captured is {status}")
                                 ConnectDB.create_prediction(
                                     username=username,
+                                    transaction_time=str(selected_time),
+                                    amount=amount,
+                                    card_expiration_date=expiration_xdate,
+                                    card_number=card_xnumber,
                                     v4=v4, v7=v7,
                                     v9=v9, v12=v12,
                                     v18=v18, v19=v19,
@@ -173,7 +178,11 @@ elif side_choice == "Login":
                                         ${status} transaction")
                                 ConnectDB.create_prediction(
                                     username=username,
+                                    transaction_time=str(selected_time),
+                                    amount=amount,
                                     v4=v4, v7=v7,
+                                    card_expiration_date=expiration_xdate,
+                                    card_number=card_xnumber,
                                     v9=v9, v12=v12,
                                     v18=v18, v19=v19,
                                     v20=v20, v21=v21,
@@ -195,15 +204,17 @@ elif side_choice == "Login":
                 # Convert the fetched data to a Pandas DataFrame
                 df = pd.DataFrame(data, columns=['username', 'fullname', 'card_number', 'expiration_date'])
                 # Display the DataFrame using Streamlit
-                st.dataframe(df.dropna(), height=800, width=1200)
+                st.dataframe(df.dropna(), height=800, width=2000)
+               
             
             if side_checker == "Predicted":
                 st.title('Predicted Data Display')
                 # Fetch data from SQLite database
                 data_x = ConnectDB().get_predictions()
                 # Convert the fetched data to a Pandas DataFrame
-                df = pd.DataFrame(data_x, columns=['id', 'username', 'v4', 'v7', 'v9', 'v12', 'v18', 'v19', 'v20', 'v21', 'v22', 'v28', 'status'])
 
+                df = pd.DataFrame(data_x, columns=['id', 'username', 'transaction_time', 'amount', 'card_expiration_date', 'card_number', 'v4', 'v7', 'v9', 'v12', 'v18', 'v19', 'v20', 'v21', 'v22', 'v28', 'status'])
+                print(df)
                 # Filter the DataFrame based on the selected username
                 if usr != 'admin':
                     filtered_df = df.loc[df['username'] == usr]
